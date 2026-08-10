@@ -195,7 +195,7 @@
       const statusEl = document.getElementById('status');
       statusEl.textContent = 'Status: Reading storage.txt...';
       try {
-        const res = await fetch('storage.txt');
+        const res = await fetch('/protected/storage.txt');
         if (!res.ok) throw new Error('storage.txt not found');
         const text = await res.text();
         
