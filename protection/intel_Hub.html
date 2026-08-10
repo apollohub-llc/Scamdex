@@ -52,40 +52,11 @@
       font-size: 0.8rem;
     }
 
-    .container {
-      display: grid;
-      grid-template-columns: 320px 1fr;
-      gap: 20px;
-    }
+    .search-bar { margin-bottom: 20px; }
 
-    @media (max-width: 850px) {
-      .container { grid-template-columns: 1fr; }
-    }
-
-    .panel {
-      background: var(--panel-bg);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 20px;
-      height: fit-content;
-    }
-
-    .panel h2 {
-      font-size: 1.1rem;
-      color: var(--accent);
-      margin-bottom: 15px;
-      text-transform: uppercase;
-      border-bottom: 1px dashed var(--border);
-      padding-bottom: 5px;
-    }
-
-    .form-group { margin-bottom: 12px; }
-
-    label { display: block; font-size: 0.8rem; color: var(--muted); margin-bottom: 4px; }
-
-    input, textarea {
+    input {
       width: 100%;
-      padding: 10px;
+      padding: 12px;
       background: #07090e;
       border: 1px solid var(--border);
       color: var(--accent);
@@ -93,29 +64,7 @@
       outline: none;
     }
 
-    textarea {
-      height: 120px;
-      resize: vertical;
-    }
-
-    input:focus, textarea:focus { border-color: var(--accent); }
-
-    button {
-      width: 100%;
-      padding: 10px;
-      background: var(--accent);
-      color: #000;
-      border: none;
-      font-weight: bold;
-      cursor: pointer;
-      border-radius: 4px;
-      text-transform: uppercase;
-      transition: 0.2s;
-    }
-
-    button:hover { opacity: 0.9; box-shadow: 0 0 10px var(--accent-glow); }
-
-    .search-bar { margin-bottom: 20px; }
+    input:focus { border-color: var(--accent); }
 
     .grid {
       display: grid;
@@ -123,7 +72,7 @@
       gap: 15px;
     }
 
-    /* Fixed Height Card Setup */
+    /* Fixed equal height cards */
     .card {
       background: var(--panel-bg);
       border: 1px solid var(--border);
@@ -132,20 +81,19 @@
       border-radius: 4px;
       display: flex;
       flex-direction: column;
-      height: 320px; /* Fixed Height for layout uniformity */
+      justify-content: space-between;
+      height: 250px;
     }
 
     .card-title {
       font-size: 1.1rem;
       color: #fff;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      flex-shrink: 0;
     }
 
-    /* Text Truncation Logic */
     .card-body {
       font-size: 0.85rem;
       color: var(--text);
@@ -153,75 +101,66 @@
       flex-grow: 1;
       overflow: hidden;
       display: -webkit-box;
-      -webkit-line-clamp: 8; /* Truncates long text block */
+      -webkit-line-clamp: 6;
       -webkit-box-orient: vertical;
       word-break: break-word;
-      margin-bottom: 12px;
     }
 
     .card-actions {
       display: flex;
       gap: 8px;
-      margin-top: auto;
-      flex-shrink: 0;
+      margin-top: 12px;
     }
 
-    .action-btn {
+    button {
       flex: 1;
+      padding: 8px;
       background: transparent;
       border: 1px solid var(--accent);
       color: var(--accent);
-      font-size: 0.7rem;
-      padding: 8px 4px;
+      font-size: 0.75rem;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 4px;
+      text-transform: uppercase;
+      transition: 0.2s;
     }
 
-    .action-btn:hover {
+    button:hover {
       background: var(--accent);
       color: #000;
-    }
-
-    /* Full Document Reader View */
-    .reader-view {
-      display: none;
-      background: var(--panel-bg);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 25px;
-      min-height: 70vh;
-    }
-
-    .reader-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-      border-bottom: 1px dashed var(--border);
-      padding-bottom: 15px;
-    }
-
-    .reader-title {
-      font-size: 1.5rem;
-      color: var(--accent);
-    }
-
-    .back-btn {
-      width: auto;
-      padding: 8px 16px;
-      font-size: 0.8rem;
-    }
-
-    .reader-content {
-      font-size: 0.95rem;
-      line-height: 1.6;
-      white-space: pre-wrap;
-      word-break: break-word;
-      color: var(--text);
+      box-shadow: 0 0 10px var(--accent-glow);
     }
 
     .status {
       font-size: 0.8rem;
       color: var(--muted);
-      margin-top: 10px;
+      margin-bottom: 15px;
+    }
+
+    /* Full document view */
+    #fullDocView {
+      display: none;
+      background: var(--panel-bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 25px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .back-btn {
+      width: auto;
+      padding: 8px 16px;
+      margin-bottom: 20px;
+    }
+
+    .doc-content {
+      font-size: 0.95rem;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      word-break: break-word;
+      color: var(--text);
     }
   </style>
 </head>
@@ -232,47 +171,26 @@
     <div><span class="badge">DATABASE ACTIVE</span></div>
   </header>
 
-  <!-- HOME VIEW -->
-  <div class="container" id="mainLayout">
-    <!-- INPUT PANEL -->
-    <div class="panel">
-      <h2>Add Intel Entry</h2>
-      <form id="intelForm">
-        <div class="form-group">
-          <label>NAME</label>
-          <input type="text" id="name" placeholder="John Doe" required>
-        </div>
-        <div class="form-group">
-          <label>DOCUMENT TEXT</label>
-          <textarea id="documentText" placeholder="Enter biography or detailed dossier..." required></textarea>
-        </div>
-        <button type="submit">Inject Record</button>
-      </form>
-      <div id="status" class="status">Status: Standby</div>
-    </div>
+  <div id="status" class="status">Status: Standby</div>
 
-    <!-- MAIN DATABASE GRID -->
-    <div>
-      <div class="search-bar">
-        <input type="text" id="searchInput" placeholder="⚡ Search database by Name or Content...">
-      </div>
-      <div class="grid" id="cardGrid"></div>
+  <!-- HOME VIEW -->
+  <div id="homeView">
+    <div class="search-bar">
+      <input type="text" id="searchInput" placeholder="⚡ Search database by Name or Document Content...">
     </div>
+    <div class="grid" id="cardGrid"></div>
   </div>
 
-  <!-- FULL DOCUMENT READER VIEW -->
-  <div class="reader-view" id="readerView">
-    <div class="reader-header">
-      <div class="reader-title" id="readerTitle">Document Details</div>
-      <button class="back-btn" onclick="closeReader()">← Back to Home</button>
-    </div>
-    <div class="reader-content" id="readerContent"></div>
+  <!-- FULL DOCUMENT VIEW -->
+  <div id="fullDocView">
+    <button class="back-btn" onclick="showHome()">← Back to Homepage</button>
+    <div id="fullDocContent" class="doc-content"></div>
   </div>
 
   <script>
     const records = [];
 
-    // Load files listed in storage.txt
+    // Load file structure strictly from storage.txt
     async function loadStorage() {
       const statusEl = document.getElementById('status');
       statusEl.textContent = 'Status: Reading storage.txt...';
@@ -294,101 +212,90 @@
             console.warn(`Could not load file: ${filePath}`);
           }
         }
-        statusEl.textContent = `Status: Loaded ${records.length} records.`;
+        statusEl.textContent = `Status: Loaded ${records.length} records from storage.txt.`;
       } catch (err) {
-        statusEl.textContent = 'Status: Manual mode (No storage.txt found)';
+        statusEl.textContent = 'Status: Error - storage.txt not found.';
       }
     }
 
-    // Parse the simplified text file structure
+    // Parses raw file text matching Name: ... and body content
     function parseAndAddRecord(rawText) {
-      const match = rawText.match(/^Name:\s*(.*)\r?\n([\s\S]*)/i);
-      if (match) {
-        const name = match[1].trim() || 'Untitled Record';
-        const docText = match[2].trim() || rawText.trim();
-        records.push({ name, docText });
-      } else {
-        records.push({ name: 'Unformatted Record', docText: rawText.trim() });
+      const nameMatch = rawText.match(/^Name:\s*(.+)/im);
+      const name = nameMatch ? nameMatch[1].trim() : 'Unknown';
+      
+      // Get body text after "Name: ..."
+      let body = rawText;
+      if (nameMatch) {
+        body = rawText.replace(nameMatch[0], '').trim();
       }
+
+      records.push({
+        name: name,
+        fullText: rawText,
+        body: body
+      });
+
       renderGrid();
     }
 
-    // Render Database Grid
+    // Render cards on home grid
     function renderGrid(filter = '') {
       const grid = document.getElementById('cardGrid');
       grid.innerHTML = '';
 
       const filtered = records.filter(r => 
-        r.name.toLowerCase().includes(filter.toLowerCase()) || 
-        r.docText.toLowerCase().includes(filter.toLowerCase())
+        r.name.toLowerCase().includes(filter.toLowerCase()) ||
+        r.body.toLowerCase().includes(filter.toLowerCase())
       );
 
-      filtered.forEach((item) => {
-        // Find absolute index in master records list
-        const masterIndex = records.indexOf(item);
-
+      filtered.forEach((item, index) => {
         const card = document.createElement('div');
         card.className = 'card';
         card.innerHTML = `
-          <div class="card-title">${escapeHTML(item.name)}</div>
-          <div class="card-body">${escapeHTML(item.docText)}</div>
+          <div>
+            <div class="card-title">Name: ${item.name}</div>
+            <div class="card-body">${escapeHtml(item.body)}...</div>
+          </div>
           <div class="card-actions">
-            <button class="action-btn" onclick="copyDocument(${masterIndex})">📋 Copy Full</button>
-            <button class="action-btn" onclick="openReader(${masterIndex})">👁 See Full</button>
+            <button onclick="copyDoc(${index})">📋 Copy</button>
+            <button onclick="seeDoc(${index})">👁 See Full</button>
           </div>
         `;
         grid.appendChild(card);
       });
     }
 
-    // HTML escape utility to avoid raw injection breakages
-    function escapeHTML(str) {
-      return str.replace(/[&<>'"]/g, 
-        tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
-      );
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.innerText = text;
+      return div.innerHTML;
     }
 
-    // Full Document Copy Action
-    function copyDocument(index) {
-      const item = records[index];
-      const textToCopy = `Name: ${item.name}\n\n${item.docText}`;
-      navigator.clipboard.writeText(textToCopy);
-      alert(`Full document copied for: ${item.name}`);
+    // Copy full raw file text
+    function copyDoc(index) {
+      navigator.clipboard.writeText(records[index].fullText);
+      alert(`Copied full document for: ${records[index].name}`);
     }
 
-    // Open Full Document Page View
-    function openReader(index) {
-      const item = records[index];
-      document.getElementById('readerTitle').textContent = item.name;
-      document.getElementById('readerContent').textContent = item.docText;
-      document.getElementById('mainLayout').style.display = 'none';
-      document.getElementById('readerView').style.display = 'block';
+    // Show full document page
+    function seeDoc(index) {
+      document.getElementById('homeView').style.display = 'none';
+      document.getElementById('fullDocView').style.display = 'block';
+      document.getElementById('fullDocContent').textContent = records[index].fullText;
       window.scrollTo(0, 0);
     }
 
-    // Return to Homepage
-    function closeReader() {
-      document.getElementById('readerView').style.display = 'none';
-      document.getElementById('mainLayout').style.display = 'grid';
+    // Return to homepage
+    function showHome() {
+      document.getElementById('fullDocView').style.display = 'none';
+      document.getElementById('homeView').style.display = 'block';
     }
-
-    // Add record via local form
-    document.getElementById('intelForm').addEventListener('submit', (e) => {
-      e.preventDefault();
-      const name = document.getElementById('name').value;
-      const docText = document.getElementById('documentText').value;
-
-      records.unshift({ name, docText });
-      renderGrid();
-      e.target.reset();
-    });
 
     // Search filter listener
     document.getElementById('searchInput').addEventListener('input', (e) => {
       renderGrid(e.target.value);
     });
 
-    // Initialize application
     loadStorage();
   </script>
 </body>
