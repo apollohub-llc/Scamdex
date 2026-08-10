@@ -187,116 +187,118 @@
     <div id="fullDocContent" class="doc-content"></div>
   </div>
 
-  <script>
-    const records = [];
+<script>
+  const records = [];
 
-    // Load file structure strictly from storage.txt
-    async function loadStorage() {
-      const statusEl = document.getElementById('status');
-      statusEl.textContent = 'Status: Reading storage.txt...';
-      try {
-        const res = await fetch('/protected/storage.txt');
-        if (!res.ok) throw new Error('storage.txt not found');
-        const text = await res.text();
-        
-        const fileList = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+  async function loadStorage() {
+    const statusEl = document.getElementById('status');
+    statusEl.textContent = 'Status: Reading storage.txt...';
+    
+    // Use relative path to step out of the current folder into protected/
+    const storagePath = '../protected/storage.txt';
 
-        for (const filePath of fileList) {
-          try {
-            const fileRes = await fetch(filePath);
-            if (fileRes.ok) {
-              const fileContent = await fileRes.text();
-              parseAndAddRecord(fileContent);
-            }
-          } catch (e) {
-            console.warn(`Could not load file: ${filePath}`);
-          }
-        }
-        statusEl.textContent = `Status: Loaded ${records.length} records from storage.txt.`;
-      } catch (err) {
-        statusEl.textContent = 'Status: Error - storage.txt not found.';
-      }
-    }
-
-    // Parses raw file text matching Name: ... and body content
-    function parseAndAddRecord(rawText) {
-      const nameMatch = rawText.match(/^Name:\s*(.+)/im);
-      const name = nameMatch ? nameMatch[1].trim() : 'Unknown';
+    try {
+      const res = await fetch(storagePath);
+      if (!res.ok) throw new Error('storage.txt not found');
+      const text = await res.text();
       
-      // Get body text after "Name: ..."
-      let body = rawText;
-      if (nameMatch) {
-        body = rawText.replace(nameMatch[0], '').trim();
+      const fileList = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+
+      for (const filePath of fileList) {
+        try {
+          // Resolve file path relative to the protected folder
+          const targetPath = filePath.startsWith('/') || filePath.startsWith('http') 
+            ? filePath 
+            : `../protected/${filePath}`;
+
+          const fileRes = await fetch(targetPath);
+          if (fileRes.ok) {
+            const fileContent = await fileRes.text();
+            parseAndAddRecord(fileContent);
+          }
+        } catch (e) {
+          console.warn(`Could not load file: ${filePath}`);
+        }
       }
+      statusEl.textContent = `Status: Loaded ${records.length} records from storage.txt.`;
+    } catch (err) {
+      statusEl.textContent = 'Status: Error - storage.txt not found.';
+    }
+  }
 
-      records.push({
-        name: name,
-        fullText: rawText,
-        body: body
-      });
-
-      renderGrid();
+  function parseAndAddRecord(rawText) {
+    const nameMatch = rawText.match(/^Name:\s*(.+)/im);
+    const name = nameMatch ? nameMatch[1].trim() : 'Unknown';
+    
+    let body = rawText;
+    if (nameMatch) {
+      body = rawText.replace(nameMatch[0], '').trim();
     }
 
-    // Render cards on home grid
-    function renderGrid(filter = '') {
-      const grid = document.getElementById('cardGrid');
-      grid.innerHTML = '';
-
-      const filtered = records.filter(r => 
-        r.name.toLowerCase().includes(filter.toLowerCase()) ||
-        r.body.toLowerCase().includes(filter.toLowerCase())
-      );
-
-      filtered.forEach((item, index) => {
-        const card = document.createElement('div');
-        card.className = 'card';
-        card.innerHTML = `
-          <div>
-            <div class="card-title">Name: ${item.name}</div>
-            <div class="card-body">${escapeHtml(item.body)}...</div>
-          </div>
-          <div class="card-actions">
-            <button onclick="copyDoc(${index})">📋 Copy</button>
-            <button onclick="seeDoc(${index})">👁 See Full</button>
-          </div>
-        `;
-        grid.appendChild(card);
-      });
-    }
-
-    function escapeHtml(text) {
-      const div = document.createElement('div');
-      div.innerText = text;
-      return div.innerHTML;
-    }
-
-    // Copy full raw file text
-    function copyDoc(index) {
-      navigator.clipboard.writeText(records[index].fullText);
-      alert(`Copied full document for: ${records[index].name}`);
-    }
-
-    // Show full document page
-    function seeDoc(index) {
-      document.getElementById('homeView').style.display = 'none';
-      document.getElementById('fullDocView').style.display = 'block';
-      document.getElementById('fullDocContent').textContent = records[index].fullText;
-      window.scrollTo(0, 0);
-    }
-
-    // Return to homepage
-    function showHome() {
-      document.getElementById('fullDocView').style.display = 'none';
-      document.getElementById('homeView').style.display = 'block';
-    }
-
-    // Search filter listener
-    document.getElementById('searchInput').addEventListener('input', (e) => {
-      renderGrid(e.target.value);
+    records.push({
+      name: name,
+      fullText: rawText,
+      body: body
     });
 
-    loadStorage();
-  </script>
+    renderGrid();
+  }
+
+  function renderGrid(filter = '') {
+    const grid = document.getElementById('cardGrid');
+    grid.innerHTML = '';
+
+    const filtered = records.filter(r => 
+      r.name.toLowerCase().includes(filter.toLowerCase()) ||
+      r.body.toLowerCase().includes(filter.toLowerCase())
+    );
+
+    filtered.forEach((item, index) => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = `
+        <div>
+          <div class="card-title">Name: ${item.name}</div>
+          <div class="card-body">${escapeHtml(item.body)}...</div>
+        </div>
+        <div class="card-actions">
+          <button onclick="copyDoc(${index})">📋 Copy</button>
+          <button onclick="seeDoc(${index})">👁 See Full</button>
+        </div>
+      `;
+      grid.appendChild(card);
+    });
+  }
+
+  function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.innerText = text;
+    return div.innerHTML;
+  }
+
+  function copyDoc(index) {
+    navigator.clipboard.writeText(records[index].fullText);
+    alert(`Copied full document for: ${records[index].name}`);
+  }
+
+  function seeDoc(index) {
+    document.getElementById('homeView').style.display = 'none';
+    document.getElementById('fullDocView').style.display = 'block';
+    document.getElementById('fullDocContent').textContent = records[index].fullText;
+    window.scrollTo(0, 0);
+  }
+
+  function showHome() {
+    document.getElementById('fullDocView').style.display = 'none';
+    document.getElementById('homeView').style.display = 'block';
+  }
+
+  document.getElementById('searchInput').addEventListener('input', (e) => {
+    renderGrid(e.target.value);
+  });
+
+  loadStorage();
+</script>
+
 </body>
 </html>
