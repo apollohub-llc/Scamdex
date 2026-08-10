@@ -194,8 +194,8 @@
     const statusEl = document.getElementById('status');
     statusEl.textContent = 'Status: Reading storage.txt...';
     
-    // Use relative path to step out of the current folder into protected/
-    const storagePath = '../protected/storage.txt';
+    // Step up 1 folder level out of "protected/" to reach the root storage.txt
+    const storagePath = '../storage.txt';
 
     try {
       const res = await fetch(storagePath);
@@ -206,10 +206,10 @@
 
       for (const filePath of fileList) {
         try {
-          // Resolve file path relative to the protected folder
-          const targetPath = filePath.startsWith('/') || filePath.startsWith('http') 
+          // Resolves paths listed in storage.txt relative to the root directory
+          const targetPath = filePath.startsWith('/') || filePath.startsWith('http') || filePath.startsWith('../')
             ? filePath 
-            : `../protected/${filePath}`;
+            : `../${filePath}`;
 
           const fileRes = await fetch(targetPath);
           if (fileRes.ok) {
@@ -299,6 +299,5 @@
 
   loadStorage();
 </script>
-
 </body>
 </html>
